@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anomaly Detection in Surveillance Videos for Women’s Safety | VIT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ---------- GLOBAL RESET ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+      overflow-x: hidden;
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at top left, #eef2ff, #e0e7ff, #ede9fe);
+    }
+
+    body {
+      display: block;
+      /* REMOVE flex layout */
+      background: radial-gradient(circle at top left, #eef2ff, #e0e7ff, #ede9fe);
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      /* enables normal scrolling when content grows */
+    }
+
+
+    /* ---------- ANIMATIONS ---------- */
+    @keyframes fadeUp {
+      0% {
+        opacity: 0;
+        transform: translateY(25px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-up {
+      animation: fadeUp 0.8s ease-out;
+    }
+
+    @keyframes gradientFlow {
+      0% {
+        background-position: left;
+      }
+
+      100% {
+        background-position: right;
+      }
+    }
+
+    @keyframes fadeGlow {
+      from {
+        box-shadow: 0 0 0px rgba(99, 102, 241, 0);
+      }
+
+      to {
+        box-shadow: 0 0 25px rgba(99, 102, 241, 0.3);
+      }
+    }
+
+    /* ---------- HEADER ---------- */
+    header {
+      background: linear-gradient(90deg, #4338ca, #2563eb, #4f46e5);
+      width: 100%;
+      text-align: center;
+      padding: 1.8rem 1rem;
+      box-shadow: 0 4px 20px rgba(67, 56, 202, 0.3);
+      border-bottom-left-radius: 2rem;
+      border-bottom-right-radius: 2rem;
+      transition: box-shadow 0.5s ease, transform 0.4s ease;
+    }
+
+    header:hover {
+      box-shadow: 0 0 35px rgba(99, 102, 241, 0.6), 0 0 80px rgba(59, 130, 246, 0.4);
+      transform: scale(1.01);
+    }
+
+    header h1 {
+      color: white;
+      font-size: 2.1rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    header p {
+      color: #dbeafe;
+      font-style: italic;
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    /* Underline animation under title */
+    .underline-animate {
+      position: relative;
+      display: inline-block;
+    }
+
+    .underline-animate::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 3px;
+      bottom: -6px;
+      left: 50%;
+      background-color: #c7d2fe;
+      transition: all 0.4s ease-in-out;
+      transform: translateX(-50%);
+    }
+
+    .underline-animate:hover::after {
+      width: 100%;
+    }
+
+    /* ---------- CARD GLOW ---------- */
+    .glow-card {
+      transition: all 0.4s ease-in-out;
+    }
+
+    .glow-card:hover {
+      box-shadow: 0 0 25px rgba(79, 70, 229, 0.3);
+      transform: translateY(-5px);
+    }
+
+    /* ---------- BUTTON ---------- */
+    .glow-btn {
+      background: linear-gradient(90deg, #4338ca, #4f46e5, #3b82f6);
+      background-size: 200%;
+      animation: gradientFlow 5s ease infinite;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+      overflow: hidden;
+      position: relative;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .glow-btn:hover {
+      background-position: right;
+      box-shadow: 0 0 35px rgba(79, 70, 229, 0.6), 0 0 60px rgba(37, 99, 235, 0.5);
+      transform: translateY(-2px);
+    }
+
+    /* Shine sweep animation across button */
+    .glow-btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -75%;
+      width: 50%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.25);
+      transform: skewX(-20deg);
+      transition: left 0.5s;
+    }
+
+    .glow-btn:hover::after {
+      left: 125%;
+    }
+
+    /* ---------- RESULT SECTION ---------- */
+    #result {
+      border: 2px solid transparent;
+      border-radius: 20px;
+      background: white;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+      padding: 2rem;
+      margin-top: 2rem;
+      width: 100%;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      animation: fadeGlow 1s ease-out forwards;
+    }
+
+    #result h3 {
+      text-align: center;
+      font-size: 1.8rem;
+      color: #312e81;
+      margin-bottom: 1rem;
+    }
+
+    #result p,
+    #result ul {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #374151;
+      text-align: left;
+    }
+
+    #confidenceScores li {
+      margin-left: 1rem;
+    }
+
+    #sampleFrameContainer {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+
+    #sampleFrame {
+      margin-top: 1rem;
+      max-width: 220px;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(79, 70, 229, 0.25);
+      transition: transform 0.3s ease;
+    }
+
+    #sampleFrame:hover {
+      transform: scale(1.03);
+    }
+  </style>
+
+</head>
+
+<body class="flex flex-col items-center justify-center p-4">
+
+  <!-- Header -->
+  <header class="w-full py-6 rounded-b-3xl shadow-lg fade-up text-center text-white">
+    <h1 class="text-3xl md:text-4xl font-extrabold underline-animate drop-shadow-lg">
+      Vellore Institute of Technology
+    </h1>
+    <p class="text-sm md:text-base text-indigo-100 italic mt-1">
+      Deemed to be University under section 3 of UGC Act, 1956
+    </p>
+  </header>
+
+  <!-- Main Card -->
+  <main class="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl max-w-5xl w-full mt-10 p-10 fade-up glow-card">
+    <h2 class="text-3xl font-bold text-center text-indigo-700 mb-3">
+      Anomaly Detection in Surveillance Videos for Women’s Safety
+    </h2>
+    <p class="text-center text-gray-600 mb-8 italic text-lg">
+      A Deep Learning Based Video Classification Approach
+    </p>
+
+    <!-- Upload Section -->
+    <div class="bg-indigo-50 rounded-2xl p-6 mb-8 shadow-inner">
+      <label class="block text-lg font-semibold text-gray-800 mb-3">
+        Select a Video File
+      </label>
+      <input type="file" id="videoInput" accept="video/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-6 
+               file:rounded-full file:border-0 file:text-sm file:font-semibold 
+               file:bg-indigo-100 file:text-indigo-800 hover:file:bg-indigo-200 transition duration-300" />
+    </div>
+
+    <button id="predictButton"
+      class="w-full py-3 px-6 rounded-full text-white font-semibold glow-btn flex items-center justify-center">
+      <span id="buttonText">Predict</span>
+      <span id="spinner" class="spinner hidden ml-2"></span>
+    </button>
+
+    <p id="error" class="mt-4 text-red-600 text-center hidden"></p>
+
+    <!-- Prediction Results -->
+    <div id="result" class="mt-8 hidden fade-up">
+      <h3 class="text-2xl font-bold mb-4 text-gray-800">Prediction Result</h3>
+      <p id="predictedLabel" class="text-lg text-gray-700"></p>
+      <h4 class="text-md font-medium mt-4 text-gray-600">Confidence Scores:</h4>
+      <ul id="confidenceScores" class="list-disc pl-6 text-gray-600"></ul>
+      <div id="sampleFrameContainer" class="mt-6">
+        <h4 class="text-md font-medium text-gray-600">Sample Frame:</h4>
+        <img id="sampleFrame" class="mt-2 max-w-full h-auto rounded-lg shadow-md" alt="Sample frame" />
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer
+    class="mt-12 mb-8 w-full max-w-5xl bg-white/90 backdrop-blur-md shadow-xl rounded-2xl p-8 fade-up glow-card border-t-4 border-indigo-500">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-xl font-bold text-indigo-700 mb-3 border-b-2 border-indigo-300 inline-block">
+          Team Members
+        </h3>
+        <ul class="space-y-1 text-gray-700 leading-relaxed">
+          <li>Mr. Parth Sunil Kothawade (22BEC0634)</li>
+          <li>Mr. Mridul Agrawal (22BEC0772)</li>
+          <li>Ms. Reshika Srivastava (22BEC0651)</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-xl font-bold text-indigo-700 mb-3 border-b-2 border-indigo-300 inline-block">
+          Project Guide
+        </h3>
+        <p class="text-gray-800 font-semibold">Dr. Mohiul Islam</p>
+        <p class="text-gray-600">Assistant Professor (Senior)</p>
+      </div>
+    </div>
+    <p class="text-center text-sm text-gray-500 mt-8">
+      © 2025 Vellore Institute of Technology — Department of Electronics and Communication Engineering
+    </p>
+  </footer>
+
+  <!-- JS -->
+  <script>
+    const videoInput = document.getElementById('videoInput');
+    const predictButton = document.getElementById('predictButton');
+    const buttonText = document.getElementById('buttonText');
+    const spinner = document.getElementById('spinner');
+    const error = document.getElementById('error');
+    const result = document.getElementById('result');
+    const predictedLabel = document.getElementById('predictedLabel');
+    const confidenceScores = document.getElementById('confidenceScores');
+    const sampleFrame = document.getElementById('sampleFrame');
+
+    predictButton.addEventListener('click', async () => {
+      if (!videoInput.files[0]) {
+        error.textContent = 'Please select a video file';
+        error.classList.remove('hidden');
+        return;
+      }
+      error.classList.add('hidden');
+      buttonText.textContent = 'Processing...';
+      spinner.classList.remove('hidden');
+      predictButton.disabled = true;
+
+      const formData = new FormData();
+      formData.append('video', videoInput.files[0]);
+
+      try {
+        const response = await fetch('/predict', { method: 'POST', body: formData });
+        const data = await response.json();
+        if (data.error) {
+          error.textContent = data.error;
+          error.classList.remove('hidden');
+          result.classList.add('hidden');
+        } else {
+          predictedLabel.textContent = `Predicted Class: ${data.predicted_label}`;
+          confidenceScores.innerHTML = Object.entries(data.confidence_scores)
+            .map(([label, score]) => `<li>${label}: ${(score * 100).toFixed(2)}%</li>`)
+            .join('');
+          if (data.sample_frame) {
+            sampleFrame.src = `data:image/jpeg;base64,${data.sample_frame}`;
+            sampleFrame.classList.remove('hidden');
+          } else sampleFrame.classList.add('hidden');
+          result.classList.remove('hidden');
+        }
+      } catch {
+        error.textContent = 'Failed to process video';
+        error.classList.remove('hidden');
+        result.classList.add('hidden');
+      } finally {
+        buttonText.textContent = 'Predict';
+        spinner.classList.add('hidden');
+        predictButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+
+</html>
