@@ -108,9 +108,9 @@ video_classification_env/
 
 ## Team Members
 
+- **Reshika Srivastava** (22BEC0651)
 - **Parth Sunil Kothawade** (22BEC0634)
 - **Mridul Agrawal** (22BEC0772)
-- **Reshika Srivastava** (22BEC0651)
 
 ## Project Guide
 
